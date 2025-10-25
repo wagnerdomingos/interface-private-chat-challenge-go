@@ -7,7 +7,7 @@ type UserRepository interface {
 	Create(user *domain.User) error
 	FindByID(id string) (*domain.User, error)
 	FindByUsername(username string) (*domain.User, error)
-	Exists(username string) bool
+	UsernameExists(username string) bool
 }
 
 // ChatRepository defines the interface for chat data operations
