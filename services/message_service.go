@@ -75,3 +75,64 @@ func (s *MessageService) SendMessage(senderID, recipientID, content, idempotency
 
 	return message, nil
 }
+
+// GetUserChats retrieves chats for a user with pagination
+func (s *MessageService) GetUserChats(userID string, page, pageSize int) (*domain.PaginatedResponse, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 20
+	}
+
+	pagination := domain.PaginationParams{
+		Page:     page,
+		PageSize: pageSize,
+	}
+
+	chats, total, err := s.chatRepo.FindUserChats(userID, pagination)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.PaginatedResponse{
+		Data:       chats,
+		Page:       page,
+		PageSize:   pageSize,
+		TotalCount: total,
+		TotalPages: (total + pageSize - 1) / pageSize,
+	}, nil
+}
+
+// GetChatMessages retrieves messages from a chat with pagination
+func (s *MessageService) GetChatMessages(chatID string, page, pageSize int) (*domain.PaginatedResponse, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 50
+	}
+
+	pagination := domain.PaginationParams{
+		Page:     page,
+		PageSize: pageSize,
+	}
+
+	messages, total, err := s.chatRepo.FindChatMessages(chatID, pagination)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.PaginatedResponse{
+		Data:       messages,
+		Page:       page,
+		PageSize:   pageSize,
+		TotalCount: total,
+		TotalPages: (total + pageSize - 1) / pageSize,
+	}, nil
+}
+
+// UpdateMessageStatus updates the status of a message
+func (s *MessageService) UpdateMessageStatus(messageID string, status domain.MessageStatus) error {
+	return s.chatRepo.UpdateMessageStatus(messageID, status)
+}
