@@ -27,6 +27,13 @@ func (r *MemoryUserRepository) Create(user *domain.User) error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 
+	// Check if username already exists
+	for _, existingUser := range r.users {
+		if existingUser.Username == user.Username {
+			return domain.ErrUsernameExists
+		}
+	}
+
 	// Generate UUID if not provided
 	if user.ID == "" {
 		user.ID = uuid.New().String()
